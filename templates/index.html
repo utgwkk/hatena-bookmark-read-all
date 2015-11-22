@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <title>まだ読んでないんですか？</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="/static/css/custom.css" media="screen" title="no title" charset="utf-8">
+  </head>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">まだ読んでないんですか？</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          {% if not logged_in() %}<li>
+            <a href="/oauth">
+              <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+              はてなIDでログイン
+            </a>
+          </li>
+          {% else %}<li>
+            <a href="/oauth/logout">
+              <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+              ログアウト
+            </a>
+          </li>{% endif %}
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+    <div class="container" role="main">
+      <div class="main-panel">
+        <h1>まだ読んでないんですか？</h1>
+        <p>いつになったら読むつもりなんですか？ ひょっとして一生「あとで読む」のままにするつもりなんですか？</p>
+        {% if logged_in() %}
+          <hr>
+          {% if len(bookmarks) > 0 %}
+            <div class="container">
+              <button type="button" class="btn btn-lg btn-warning read-all-button">
+                <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+                全部読んだことにする(処理に少し時間がかかります)
+              </button>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <td>タイトル</td>
+                  <td>登録した日時</td>
+                  <td>読んだ？</td>
+                </tr>
+              </thead>
+              {% for item in bookmarks %}
+                <tr>
+                  <td><a href="{{ item['url'] }}" target="_blank">{{ item['title'] }}</a></td>
+                  <td>{{ item['date'] }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-primary read-button">
+                      <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+                      読んだ
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% else %}
+            <div class="alert alert-info" role="alert">
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              「あとで読む」タグが付けられたブックマークはありません。
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="alert alert-info" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            ログインしていません。メニューの「はてなIDでログイン」ボタンからログインしてください。
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+  </body>
+</html>
