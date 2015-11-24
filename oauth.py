@@ -1,5 +1,5 @@
 # coding=utf-8
-from urllib.parse import parse_qs, urlencode
+from six.moves.urllib.parse import parse_qs, urlencode
 import requests
 from xml.etree import ElementTree
 from requests_oauthlib import OAuth1
