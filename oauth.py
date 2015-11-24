@@ -1,4 +1,5 @@
 # coding=utf-8
+import six
 from six.moves.urllib.parse import parse_qs, urlencode
 import requests
 from xml.etree import ElementTree
@@ -100,7 +101,10 @@ def get_bookmarks():
                          auth=oauth)
         if r.status_code != 200:
             abort(400)
-        xml = ElementTree.fromstring(r.text)
+        if six.PY2:
+            xml = ElementTree.fromstring(r.content)
+        else:
+            xml = ElementTree.fromstring(r.text)
         ns = {'hatena': 'http://purl.org/atom/ns#'}
         targets = xml.findall('hatena:entry', ns)
         if len(targets) == 0:
