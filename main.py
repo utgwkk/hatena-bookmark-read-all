@@ -7,6 +7,7 @@ import oauth
 from constants import SECRET_KEY
 app = Flask(__name__)
 app.debug = True
+app.secret_key = SECRET_KEY
 app.logger.setLevel(logging.DEBUG)
 funcs = dict(logged_in=oauth.logged_in, quote=quote, len=len)
 app.jinja_env.globals.update(**funcs)
@@ -51,5 +52,4 @@ def mark_as_read_all():
     return oauth.mark_as_read_all()
 
 if __name__ == "__main__":
-    app.secret_key = SECRET_KEY
-    app.run(debug=True)
+    app.run()
