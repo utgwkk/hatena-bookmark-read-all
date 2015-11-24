@@ -3,7 +3,7 @@ $('.read-button').click(function(){
   var href = buttonLine.children().eq(0).children().attr('href');
   $.ajax({
     type: 'POST',
-    url: '/feed/read?url=' encodeURI(href),
+    url: '/feed/read?url=' + encodeURI(href),
     success: function(data){
       $(buttonLine).remove();
     }
