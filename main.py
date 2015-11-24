@@ -6,7 +6,6 @@ from flask import Flask, request, render_template
 import oauth
 from constants import SECRET_KEY
 app = Flask(__name__)
-app.debug = True
 app.secret_key = SECRET_KEY
 app.logger.setLevel(logging.DEBUG)
 funcs = dict(logged_in=oauth.logged_in, quote=quote, len=len)
