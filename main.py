@@ -6,6 +6,7 @@ from flask import Flask, request, render_template
 import oauth
 from constants import SECRET_KEY
 app = Flask(__name__)
+app.debug = True
 app.logger.setLevel(logging.DEBUG)
 funcs = dict(logged_in=oauth.logged_in, quote=quote, len=len)
 app.jinja_env.globals.update(**funcs)
