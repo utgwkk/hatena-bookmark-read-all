@@ -27,6 +27,8 @@ def authorize():
             resp = make_response(redirect(AUTHORIZE_URL + '?' + params))
         session['oauth_token_secret'] = oauth_token_secret
         return resp
+    else:
+        return r.text
 
 
 def callback():
