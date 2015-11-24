@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import six
 from six.moves.urllib.parse import parse_qs, urlencode
 import requests
@@ -131,8 +132,8 @@ def mark_as_read(url):
     rj = r.json()
     comment = rj['comment_raw']
     tags = rj['tags']
-    comment = comment.replace('[あとで読む]', '')
-    tags.remove('あとで読む')
+    comment = comment.replace(u'[あとで読む]', '')
+    tags.remove(u'あとで読む')
     params = {'url': url, 'comment': comment, 'tags': tags}
     r = requests.post('http://api.b.hatena.ne.jp/1/my/bookmark',
                       params=params, auth=oauth)
