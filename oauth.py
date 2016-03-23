@@ -67,7 +67,7 @@ def feed():
     return Response(r.text, mimetype='text/xml')
 
 
-: Functions
+# Functions
 def logged_in():
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
