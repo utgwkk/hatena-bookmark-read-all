@@ -67,14 +67,7 @@ def feed():
     return Response(r.text, mimetype='text/xml')
 
 
-def mark_as_read_all():
-    targets = get_bookmarks()
-    for target in targets:
-        mark_as_read(target.get('url'))
-    return redirect(url_for('index'))
-
-
-# Functions
+: Functions
 def logged_in():
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')

@@ -46,9 +46,5 @@ def mark_as_read():
     return 'ok'
 
 
-@app.route('/feed/read_all')
-def mark_as_read_all():
-    return oauth.mark_as_read_all()
-
 if __name__ == "__main__":
     app.run()
