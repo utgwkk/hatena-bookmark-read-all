@@ -11,6 +11,6 @@ $('.read-button').click(function(){
 
 $('.read-all-button').click(function(){
   if(window.confirm('本当に全部読んだことにしていいですか？')){
-    location.href = '/feed/read_all';
+    $('.read-button').click();
   }
 });
