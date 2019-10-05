@@ -135,7 +135,8 @@ def mark_as_read(url):
     comment = rj['comment_raw']
     tags = rj['tags']
     comment = comment.replace(u'[あとで読む]', '')
-    tags.remove(u'あとで読む')
+    if u'あとで読む' in tags:
+        tags.remove(u'あとで読む')
     params = {'url': url, 'comment': comment, 'tags': tags}
     r = requests.post('https://bookmark.hatenaapis.com/rest/1/my/bookmark',
                       params=params, auth=oauth)
