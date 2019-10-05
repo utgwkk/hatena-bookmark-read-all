@@ -6,7 +6,7 @@ import requests
 from xml.etree import ElementTree
 from requests_oauthlib import OAuth1
 from flask import make_response, redirect, request, \
-                  url_for, session, Response, abort
+                  url_for, session, Response, abort, current_app
 from constants import *
 
 
@@ -94,6 +94,7 @@ def get_bookmarks():
                          params=params,
                          auth=oauth)
         if r.status_code != 200:
+            current_app.logger.error(f'code:{r.status_code} body:{r.text}')
             abort(400)
         if six.PY2:
             xml = ElementTree.fromstring(r.content)
@@ -121,6 +122,7 @@ def mark_as_read(url):
                      params={'url': url},
                      auth=oauth)
     if r.status_code != 200:
+        current_app.logger.error(f'code:{r.status_code} body:{r.text}')
         abort(400)
     rj = r.json()
     comment = rj['comment_raw']
@@ -131,6 +133,7 @@ def mark_as_read(url):
     r = requests.post('http://api.b.hatena.ne.jp/1/my/bookmark',
                       params=params, auth=oauth)
     if r.status_code != 200:
+        current_app.logger.error(f'code:{r.status_code} body:{r.text}')
         abort(400)
 
 
