@@ -14,9 +14,11 @@ app.jinja_env.globals.update(**funcs)
 
 @app.route('/')
 def index():
+    bookmarks = []
     if oauth.logged_in():
-        return render_template('index.html', bookmarks=oauth.get_bookmarks())
-    return render_template('index.html')
+        bookmarks = bookmarks=oauth.get_bookmarks()
+
+    return render_template('index.html', bookmarks=bookmarks)
 
 
 @app.route('/oauth')
