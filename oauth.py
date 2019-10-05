@@ -1,7 +1,6 @@
 # coding=utf-8
 from __future__ import print_function
-import six
-from six.moves.urllib.parse import parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode
 import requests
 from xml.etree import ElementTree
 from requests_oauthlib import OAuth1
@@ -96,10 +95,7 @@ def get_bookmarks():
         if r.status_code != 200:
             current_app.logger.error(f'code:{r.status_code} body:{r.text}')
             abort(400)
-        if six.PY2:
-            xml = ElementTree.fromstring(r.content)
-        else:
-            xml = ElementTree.fromstring(r.text)
+        xml = ElementTree.fromstring(r.text)
         ns = {'hatena': 'http://purl.org/atom/ns#'}
         targets = xml.findall('hatena:entry', ns)
         if len(targets) == 0:

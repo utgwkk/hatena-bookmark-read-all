@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 import logging
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 from flask import Flask, request, render_template
 import oauth
 from constants import SECRET_KEY
