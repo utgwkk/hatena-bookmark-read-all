@@ -96,32 +96,28 @@ def get_authorized_info():
                   resource_owner_secret=oauth_token_secret)
 
 
-def get_bookmarks():
+def get_bookmarks(page=1):
     if not logged_in():
         return redirect(url_for('index'))
     oauth = get_authorized_info()
-    params = {'tag': 'あとで読む', 'page': 1}
+    params = {'tag': 'あとで読む', 'page': page}
     data = []
     username = get_username()
-    while True:
-        r = requests.get(f'https://b.hatena.ne.jp/{username}/bookmark.rss',
-                         params=params,
-                         auth=oauth)
-        if r.status_code != 200:
-            current_app.logger.error(f'code:{r.status_code} body:{r.text}')
-            abort(400)
-        ns = {'rdf': 'http://purl.org/rss/1.0/', 'dc': 'http://purl.org/dc/elements/1.1/'}
-        xml = ElementTree.fromstring(r.text)
-        targets = xml.findall('rdf:item', ns)
-        if len(targets) == 0:
-            break
-        for elem in targets:
-            url = elem.find('rdf:link', ns).text
-            title = elem.find('rdf:title', ns).text
-            date = elem.find('dc:date', ns).text.replace('T', ' ')
-            entry = {'url': url, 'title': title, 'date': date}
-            data.append(entry)
-        params['page'] += 1
+    r = requests.get(f'https://b.hatena.ne.jp/{username}/bookmark.rss',
+                        params=params,
+                        auth=oauth)
+    if r.status_code != 200:
+        current_app.logger.error(f'code:{r.status_code} body:{r.text}')
+        abort(400)
+    ns = {'rdf': 'http://purl.org/rss/1.0/', 'dc': 'http://purl.org/dc/elements/1.1/'}
+    xml = ElementTree.fromstring(r.text)
+    targets = xml.findall('rdf:item', ns)
+    for elem in targets:
+        url = elem.find('rdf:link', ns).text
+        title = elem.find('rdf:title', ns).text
+        date = elem.find('dc:date', ns).text.replace('T', ' ')
+        entry = {'url': url, 'title': title, 'date': date}
+        data.append(entry)
     return data
 
 
