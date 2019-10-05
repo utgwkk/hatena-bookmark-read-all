@@ -66,6 +66,20 @@ def feed():
     return Response(r.text, mimetype='text/xml')
 
 
+def get_username():
+    if not logged_in():
+        return None
+    oauth = get_authorized_info()
+    r = requests.get(
+        'https://bookmark.hatenaapis.com/rest/1/my',
+        auth=oauth,
+    )
+    if r.status_code != 200:
+        current_app.logger.error(f'code:{r.status_code} body:{r.text}')
+        return None
+    return r.json()['name']
+
+
 # Functions
 def logged_in():
     oauth_token = session.get('oauth_token', '')
@@ -86,27 +100,28 @@ def get_bookmarks():
     if not logged_in():
         return redirect(url_for('index'))
     oauth = get_authorized_info()
-    params = {'tag': 'あとで読む'}
+    params = {'tag': 'あとで読む', 'page': 1}
     data = []
+    username = get_username()
     while True:
-        r = requests.get('http://b.hatena.ne.jp/atom/feed',
+        r = requests.get(f'https://b.hatena.ne.jp/{username}/bookmark.rss',
                          params=params,
                          auth=oauth)
         if r.status_code != 200:
             current_app.logger.error(f'code:{r.status_code} body:{r.text}')
             abort(400)
+        ns = {'rdf': 'http://purl.org/rss/1.0/', 'dc': 'http://purl.org/dc/elements/1.1/'}
         xml = ElementTree.fromstring(r.text)
-        ns = {'hatena': 'http://purl.org/atom/ns#'}
-        targets = xml.findall('hatena:entry', ns)
+        targets = xml.findall('rdf:item', ns)
         if len(targets) == 0:
             break
         for elem in targets:
-            url = elem.find('hatena:link[@rel="related"]', ns).attrib['href']
-            title = elem.find('hatena:title', ns).text
-            date = elem.find('hatena:issued', ns).text.replace('T', ' ')
+            url = elem.find('rdf:link', ns).text
+            title = elem.find('rdf:title', ns).text
+            date = elem.find('dc:date', ns).text.replace('T', ' ')
             entry = {'url': url, 'title': title, 'date': date}
             data.append(entry)
-        params['of'] = params.get('of', 0) + 20
+        params['page'] += 1
     return data
 
 
@@ -114,7 +129,7 @@ def mark_as_read(url):
     if not logged_in():
         abort(403)
     oauth = get_authorized_info()
-    r = requests.get('http://api.b.hatena.ne.jp/1/my/bookmark',
+    r = requests.get('https://bookmark.hatenaapis.com/rest/1/my/bookmark',
                      params={'url': url},
                      auth=oauth)
     if r.status_code != 200:
@@ -126,7 +141,7 @@ def mark_as_read(url):
     comment = comment.replace(u'[あとで読む]', '')
     tags.remove(u'あとで読む')
     params = {'url': url, 'comment': comment, 'tags': tags}
-    r = requests.post('http://api.b.hatena.ne.jp/1/my/bookmark',
+    r = requests.post('https://bookmark.hatenaapis.com/rest/1/my/bookmark',
                       params=params, auth=oauth)
     if r.status_code != 200:
         current_app.logger.error(f'code:{r.status_code} body:{r.text}')
