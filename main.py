@@ -23,10 +23,12 @@ app.jinja_env.globals.update(**funcs)
 def get_authorized_info():
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
-    return OAuth1(constants.CONSUMER_KEY,
-                  client_secret=constants.CONSUMER_SECRET,
-                  resource_owner_key=oauth_token,
-                  resource_owner_secret=oauth_token_secret)
+    return OAuth1(
+        constants.CONSUMER_KEY,
+        client_secret=constants.CONSUMER_SECRET,
+        resource_owner_key=oauth_token,
+        resource_owner_secret=oauth_token_secret
+    )
 
 def is_smartphone():
     user_agent = request.headers.get('User-Agent')
@@ -49,11 +51,16 @@ def get_bookmarks(page=1):
     params = {'tag': 'あとで読む', 'page': page}
     data = []
     username = get_username()
-    r = requests.get(f'https://b.hatena.ne.jp/{username}/bookmark.rss',
-                        params=params,
-                        auth=oauth)
+    r = requests.get(
+        f'https://b.hatena.ne.jp/{username}/bookmark.rss',
+        params=params,
+        auth=oauth,
+    )
     r.raise_for_status()
-    ns = {'rdf': 'http://purl.org/rss/1.0/', 'dc': 'http://purl.org/dc/elements/1.1/'}
+    ns = {
+        'rdf': 'http://purl.org/rss/1.0/',
+        'dc': 'http://purl.org/dc/elements/1.1/',
+    }
     xml = ElementTree.fromstring(r.text)
     targets = xml.findall('rdf:item', ns)
     for elem in targets:
@@ -77,9 +84,14 @@ def index():
 @app.route('/oauth')
 def auth():
     # Fetch access token
-    oauth = OAuth1(constants.CONSUMER_KEY, client_secret=constants.CONSUMER_SECRET)
-    params = {'scope': constants.SCOPE,
-              'oauth_callback': constants.CALLBACK_URL}
+    oauth = OAuth1(
+        constants.CONSUMER_KEY,
+        client_secret=constants.CONSUMER_SECRET,
+    )
+    params = {
+        'scope': constants.SCOPE,
+        'oauth_callback': constants.CALLBACK_URL,
+    }
     r = requests.post(constants.REQUEST_TOKEN_URL, auth=oauth, params=params)
     r.raise_for_status()
 
@@ -100,11 +112,13 @@ def auth_callback():
     verifier = request.args.get('oauth_verifier')
     oauth_token = request.args.get('oauth_token')
     oauth_token_secret = session.get('oauth_token_secret')
-    oauth = OAuth1(constants.CONSUMER_KEY,
-                   client_secret=constants.CONSUMER_SECRET,
-                   resource_owner_key=oauth_token,
-                   resource_owner_secret=oauth_token_secret,
-                   verifier=verifier)
+    oauth = OAuth1(
+        constants.CONSUMER_KEY,
+        client_secret=constants.CONSUMER_SECRET,
+        resource_owner_key=oauth_token,
+        resource_owner_secret=oauth_token_secret,
+        verifier=verifier,
+    )
     r = requests.post(constants.GET_ACCESS_TOKEN_URL, auth=oauth)
     rj = parse_qs(r.text)
     oauth_token = rj['oauth_token'][0]
@@ -129,9 +143,11 @@ def feed():
         return redirect(url_for('index'))
     oauth = get_authorized_info()
     params = {'tag': 'あとで読む'}
-    r = requests.get('http://b.hatena.ne.jp/atom/feed',
-                     params=params,
-                     auth=oauth)
+    r = requests.get(
+        'http://b.hatena.ne.jp/atom/feed',
+        params=params,
+        auth=oauth,
+    )
     r.raise_for_status()
     return Response(r.text, mimetype='text/xml')
 
@@ -142,9 +158,11 @@ def mark_as_read():
     if not logged_in():
         abort(403)
     oauth = get_authorized_info()
-    r = requests.get('https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-                     params={'url': url},
-                     auth=oauth)
+    r = requests.get(
+        'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
+        params={'url': url},
+        auth=oauth,
+    )
     r.raise_for_status()
     rj = r.json()
     comment = rj['comment_raw']
@@ -153,8 +171,11 @@ def mark_as_read():
     if 'あとで読む' in tags:
         tags.remove('あとで読む')
     params = {'url': url, 'comment': comment, 'tags': tags}
-    r = requests.post('https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-                      params=params, auth=oauth)
+    r = requests.post(
+        'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
+        params=params,
+        auth=oauth,
+    )
     r.raise_for_status()
 
     return 'ok'
