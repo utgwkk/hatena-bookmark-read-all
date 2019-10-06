@@ -30,8 +30,10 @@ def get_authorized_info():
 
 def is_smartphone():
     user_agent = request.headers.get('User-Agent')
-    return any(map(user_agent.__contains__,
-               ['iPhone', 'iPad', 'Android', 'Mobile', 'Phone', 'Nexus']))
+    for smp_ua in constants.SMARTPHONE_USER_AGENT:
+        if smp_ua in user_agent:
+            return True
+    return False
 
 def get_username():
     oauth = get_authorized_info()
