@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import parse_qs, urlencode
+from urllib.parse import urlencode
 from flask import Flask, Response, abort, request, redirect, session, url_for, render_template
 import requests
 from requests_oauthlib import OAuth1
