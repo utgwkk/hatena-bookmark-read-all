@@ -155,18 +155,15 @@ def auth_logout():
     return redirect(url_for('index'))
 
 
-@app.route('/feed/read', methods=['POST'])
+@app.route('/mark_as_read', methods=['POST'])
 def mark_as_read():
     '''
-    POST /feed/read
+    POST /mark_as_read
     `url` パラメータのブックマークを既読状態にする
-    ログインしていないときは403を返す
-    TODO: 403より401の方がいいのでは？
-    TODO: エンドポイント再考の余地があると思う
-    feedというよりはbookmarkとか？
+    ログインしていないときは401を返す
     '''
     if not logged_in():
-        abort(403)
+        abort(401)
 
     url = request.args.get('url')
     oauth = get_authorized_info()

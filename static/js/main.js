@@ -3,7 +3,8 @@ document.querySelectorAll('.read-button').forEach(elem => {
     const buttonLine = elem.parentElement.parentElement;
     const aTag = buttonLine.children[0].children[0];
     const href = aTag.getAttribute('href');
-    fetch(`/feed/read?url=${encodeURI(href)}`, {
+    // TODO: queryじゃなくてbodyに含める
+    fetch(`/mark_as_read?url=${encodeURI(href)}`, {
       method: 'POST'
     })
     .then(resp => {
