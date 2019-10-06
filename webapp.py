@@ -155,24 +155,6 @@ def auth_logout():
     return redirect(url_for('index'))
 
 
-@app.route('/feed')
-def feed():
-    '''
-    GET /feed
-    ログイン中のユーザーの「あとで読む」タグが付いたブックマークのRSSを返す
-    ログインしていないときは / にリダイレクトする
-    TODO: このエンドポイント使うことない気がする。要調査
-    '''
-    if not logged_in():
-        return redirect(url_for('index'))
-
-    page = int(request.args.get('page', 1))
-    oauth = get_authorized_info()
-    username = get_username()
-    xml = service.get_bookmark_feed(oauth, username, page)
-    return Response(xml, mimetype='text/xml')
-
-
 @app.route('/feed/read', methods=['POST'])
 def mark_as_read():
     '''
