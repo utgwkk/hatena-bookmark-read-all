@@ -46,6 +46,8 @@ def is_smartphone():
 
 
 def get_username():
+    if 'username' in session:
+        return session['username']
     oauth = get_authorized_info()
     headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
@@ -54,7 +56,9 @@ def get_username():
         auth=oauth,
     )
     resp.raise_for_status()
-    return resp.json()['name']
+    username = resp.json()['name']
+    session['username'] = username
+    return username
 
 
 def get_bookmarks(page=1):
