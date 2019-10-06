@@ -62,6 +62,11 @@ def get_username():
 # Controllers
 @app.route('/')
 def index():
+    '''
+    GET /
+    未読の記事一覧を表示する
+    ログインしていないときはその旨が表示される
+    '''
     bookmarks = []
     if logged_in():
         try:
@@ -79,6 +84,12 @@ def index():
 
 @app.route('/oauth')
 def auth():
+    '''
+    GET /oauth
+    はてなのOAuth APIでログインする
+    認可画面にリダイレクトする
+    TODO: エンドポイント名再考の余地あり、/authorize はどうか
+    '''
     oauth = OAuth1(
         constants.CONSUMER_KEY,
         client_secret=constants.CONSUMER_SECRET,
@@ -95,6 +106,11 @@ def auth():
 
 @app.route('/oauth/callback')
 def auth_callback():
+    '''
+    GET /oauth/callback
+    認可画面からリダイレクトされる
+    ここでアクセストークンが得られるので、ログアウトするまでこれを用いる
+    '''
     verifier = request.args.get('oauth_verifier')
     oauth_token = request.args.get('oauth_token')
     oauth_token_secret = session.get('oauth_token_secret')
@@ -113,16 +129,29 @@ def auth_callback():
 
 @app.route('/oauth/logout')
 def auth_logout():
+    '''
+    GET /oauth/logout
+    ログアウトする
+    ログインしていないときは400を返す
+    '''
     if not logged_in():
         abort(400)
+
     flush_session()
     return redirect(url_for('index'))
 
 
 @app.route('/feed')
 def feed():
+    '''
+    GET /feed
+    ログイン中のユーザーの「あとで読む」タグが付いたブックマークのRSSを返す
+    ログインしていないときは / にリダイレクトする
+    TODO: このエンドポイント使うことない気がする。要調査
+    '''
     if not logged_in():
         return redirect(url_for('index'))
+
     page = int(request.args.get('page', 1))
     oauth = get_authorized_info()
     username = get_username()
@@ -132,9 +161,18 @@ def feed():
 
 @app.route('/feed/read', methods=['POST'])
 def mark_as_read():
-    url = request.args.get('url')
+    '''
+    POST /feed/read
+    `url` パラメータのブックマークを既読状態にする
+    ログインしていないときは403を返す
+    TODO: 403より401の方がいいのでは？
+    TODO: エンドポイント再考の余地があると思う
+    feedというよりはbookmarkとか？
+    '''
     if not logged_in():
         abort(403)
+
+    url = request.args.get('url')
     oauth = get_authorized_info()
     bookmark = service.get_bookmark(oauth, url)
 
