@@ -10,15 +10,15 @@ import constants
 app = Flask(__name__)
 app.secret_key = constants.SECRET_KEY
 app.logger.setLevel(logging.DEBUG)
-funcs = dict(logged_in=oauth.logged_in, quote=quote, len=len)
-app.jinja_env.globals.update(**funcs)
 
-
-# Functions
+# Helper
 def logged_in():
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
     return oauth_token != '' and oauth_token_secret != ''
+
+funcs = dict(logged_in=logged_in, quote=quote, len=len)
+app.jinja_env.globals.update(**funcs)
 
 def get_authorized_info():
     oauth_token = session.get('oauth_token', '')
