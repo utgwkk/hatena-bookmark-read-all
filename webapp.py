@@ -77,24 +77,11 @@ def index():
 
 @app.route('/oauth')
 def auth():
-    # Fetch access token
     oauth = OAuth1(
         constants.CONSUMER_KEY,
         client_secret=constants.CONSUMER_SECRET,
     )
-    params = {
-        'scope': constants.SCOPE,
-        'oauth_callback': constants.CALLBACK_URL,
-    }
-    resp = service.post(
-        oauth,
-        constants.REQUEST_TOKEN_URL,
-        params=params,
-    )
-
-    resp_json = parse_qs(resp.text)
-    oauth_token = resp_json['oauth_token'][0]
-    oauth_token_secret = resp_json['oauth_token_secret'][0]
+    oauth_token, oauth_token_secret = service.request_token(oauth)
     params = urlencode({'oauth_token': oauth_token})
     if is_smartphone():
         resp = redirect(constants.AUTHORIZE_URL_SP + '?' + params)
@@ -116,13 +103,7 @@ def auth_callback():
         resource_owner_secret=oauth_token_secret,
         verifier=verifier,
     )
-    resp = service.post(
-        oauth,
-        constants.GET_ACCESS_TOKEN_URL,
-    )
-    resp_body = parse_qs(resp.text)
-    oauth_token = resp_body['oauth_token'][0]
-    oauth_token_secret = resp_body['oauth_token_secret'][0]
+    oauth_token, oauth_token_secret = service.get_access_token(oauth)
     session['oauth_token'] = oauth_token
     session['oauth_token_secret'] = oauth_token_secret
     return redirect(url_for('index'))

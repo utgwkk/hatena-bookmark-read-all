@@ -1,4 +1,5 @@
 from xml.etree import ElementTree
+from urllib.parse import parse_qs
 import constants
 import requests
 
@@ -29,6 +30,33 @@ def post(auth, url, *, params=None):
     )
     resp.raise_for_status()
     return resp
+
+def request_token(oauth):
+    # Fetch access token
+    params = {
+        'scope': constants.SCOPE,
+        'oauth_callback': constants.CALLBACK_URL,
+    }
+    resp = post(
+        oauth,
+        constants.REQUEST_TOKEN_URL,
+        params=params,
+    )
+
+    resp_body = parse_qs(resp.text)
+    oauth_token = resp_body['oauth_token'][0]
+    oauth_token_secret = resp_body['oauth_token_secret'][0]
+    return oauth_token, oauth_token_secret
+
+def get_access_token(auth):
+    resp = post(
+        auth,
+        constants.GET_ACCESS_TOKEN_URL,
+    )
+    resp_body = parse_qs(resp.text)
+    oauth_token = resp_body['oauth_token'][0]
+    oauth_token_secret = resp_body['oauth_token_secret'][0]
+    return oauth_token, oauth_token_secret
 
 def get_username(auth):
     resp = get(
