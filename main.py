@@ -32,6 +32,11 @@ def get_authorized_info():
     )
 
 
+def flush_session():
+    session['oauth_token'] = ''
+    session['oauth_token_secret'] = ''
+
+
 def is_smartphone():
     user_agent = request.headers.get('User-Agent')
     for smp_ua in constants.SMARTPHONE_USER_AGENT:
@@ -80,7 +85,13 @@ def get_bookmarks(page=1):
 def index():
     bookmarks = []
     if logged_in():
-        bookmarks = get_bookmarks()
+        try:
+            bookmarks = get_bookmarks()
+        except requests.HTTPError:
+            # ログインセッションがおかしくなるとAPIから401が返るので、
+            # とりあえずログアウトする
+            # ISE返るのを防いでるけどもっといい方法ありそう
+            flush_session()
 
     return render_template('index.html', bookmarks=bookmarks)
 
@@ -136,8 +147,7 @@ def auth_callback():
 def auth_logout():
     if not logged_in():
         abort(400)
-    session['oauth_token'] = ''
-    session['oauth_token_secret'] = ''
+    flush_session()
     return redirect(url_for('index'))
 
 
