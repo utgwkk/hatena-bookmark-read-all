@@ -81,7 +81,7 @@ def get_bookmarks(page=1):
 def index():
     bookmarks = []
     if logged_in():
-        bookmarks = bookmarks = get_bookmarks()
+        bookmarks = get_bookmarks()
 
     return render_template('index.html', bookmarks=bookmarks)
 
