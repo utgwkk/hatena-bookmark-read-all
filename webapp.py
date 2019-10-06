@@ -97,13 +97,12 @@ def index():
     return render_template('index.html', bookmarks=bookmarks)
 
 
-@app.route('/oauth')
+@app.route('/authorize')
 def auth():
     '''
-    GET /oauth
+    GET /authorize
     はてなのOAuth APIでログインする
     認可画面にリダイレクトする
-    TODO: エンドポイント名再考の余地あり、/authorize はどうか
     '''
     oauth = OAuth1(
         constants.CONSUMER_KEY,
@@ -142,10 +141,10 @@ def auth_callback():
     return redirect(url_for('index'))
 
 
-@app.route('/oauth/logout')
+@app.route('/logout')
 def auth_logout():
     '''
-    GET /oauth/logout
+    GET /logout
     ログアウトする
     ログインしていないときは400を返す
     '''
