@@ -4,7 +4,9 @@ from xml.etree import ElementTree
 from flask import Flask, Response, abort, request, redirect, session, url_for, render_template
 import requests
 from requests_oauthlib import OAuth1
+
 import constants
+import service
 app = Flask(__name__)
 app.secret_key = constants.SECRET_KEY
 app.logger.setLevel(logging.DEBUG)
@@ -48,14 +50,12 @@ def is_smartphone():
 def get_username():
     if 'username' in session:
         return session['username']
+
     oauth = get_authorized_info()
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.get(
-        'https://bookmark.hatenaapis.com/rest/1/my',
-        headers=headers,
-        auth=oauth,
+    resp = service.get(
+        oauth,
+        'https://bookmark.hatenaapis.com/rest/1/my'
     )
-    resp.raise_for_status()
     username = resp.json()['name']
     session['username'] = username
     return username
@@ -66,13 +66,11 @@ def get_bookmark_feed(page=1):
     params = {'tag': 'あとで読む', 'page': page}
     username = get_username()
     headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.get(
+    resp = service.get(
+        oauth,
         f'https://b.hatena.ne.jp/{username}/bookmark.rss',
-        headers=headers,
         params=params,
-        auth=oauth,
     )
-    resp.raise_for_status()
     return resp.text
 
 
@@ -123,12 +121,10 @@ def auth():
         'scope': constants.SCOPE,
         'oauth_callback': constants.CALLBACK_URL,
     }
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.post(
+    resp = service.post(
+        oauth,
         constants.REQUEST_TOKEN_URL,
-        headers=headers,
-        auth=oauth,
-        params=params
+        params=params,
     )
     resp.raise_for_status()
 
@@ -156,11 +152,9 @@ def auth_callback():
         resource_owner_secret=oauth_token_secret,
         verifier=verifier,
     )
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.post(
+    resp = service.post(
+        oauth,
         constants.GET_ACCESS_TOKEN_URL,
-        headers=headers,
-        auth=oauth,
     )
     resp_body = parse_qs(resp.text)
     oauth_token = resp_body['oauth_token'][0]
@@ -193,12 +187,10 @@ def mark_as_read():
     if not logged_in():
         abort(403)
     oauth = get_authorized_info()
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.get(
+    resp = service.get(
+        oauth,
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-        headers=headers,
         params={'url': url},
-        auth=oauth,
     )
     resp.raise_for_status()
     resp_json = resp.json()
@@ -208,11 +200,10 @@ def mark_as_read():
     if 'あとで読む' in tags:
         tags.remove('あとで読む')
     params = {'url': url, 'comment': comment, 'tags': tags}
-    resp = requests.post(
+    resp = service.post(
+        oauth,
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-        headers=headers,
         params=params,
-        auth=oauth,
     )
     resp.raise_for_status()
 
