@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import quote, parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode
 from xml.etree import ElementTree
 from flask import Flask, Response, abort, request, redirect, session, url_for, render_template
 import requests
