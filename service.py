@@ -3,7 +3,7 @@ from urllib.parse import parse_qs
 import requests
 import constants
 
-def get(auth, url, *, params=None):
+def _get(auth, url, *, params=None):
     if params is None:
         params = {}
 
@@ -17,7 +17,7 @@ def get(auth, url, *, params=None):
     resp.raise_for_status()
     return resp
 
-def post(auth, url, *, params=None):
+def _post(auth, url, *, params=None):
     if params is None:
         params = {}
 
@@ -37,7 +37,7 @@ def request_token(oauth):
         'scope': constants.SCOPE,
         'oauth_callback': constants.CALLBACK_URL,
     }
-    resp = post(
+    resp = _post(
         oauth,
         constants.REQUEST_TOKEN_URL,
         params=params,
@@ -49,7 +49,7 @@ def request_token(oauth):
     return oauth_token, oauth_token_secret
 
 def get_access_token(auth):
-    resp = post(
+    resp = _post(
         auth,
         constants.GET_ACCESS_TOKEN_URL,
     )
@@ -59,14 +59,14 @@ def get_access_token(auth):
     return oauth_token, oauth_token_secret
 
 def get_username(auth):
-    resp = get(
+    resp = _get(
         auth,
         'https://bookmark.hatenaapis.com/rest/1/my'
     )
     return resp.json()['name']
 
 def get_bookmark(auth, url):
-    resp = get(
+    resp = _get(
         auth,
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
         params={'url': url},
@@ -75,7 +75,7 @@ def get_bookmark(auth, url):
 
 def update_bookmark(auth, url, comment, tags):
     params = {'url': url, 'comment': comment, 'tags': tags}
-    post(
+    _post(
         auth,
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
         params=params,
@@ -83,7 +83,7 @@ def update_bookmark(auth, url, comment, tags):
 
 def get_bookmark_feed(auth, username, page=1):
     params = {'tag': 'あとで読む', 'page': page}
-    resp = get(
+    resp = _get(
         auth,
         f'https://b.hatena.ne.jp/{username}/bookmark.rss',
         params=params,
