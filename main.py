@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding=utf-8
 import logging
 from urllib.parse import quote, parse_qs, urlencode
 from xml.etree import ElementTree
