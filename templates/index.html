@@ -34,13 +34,13 @@
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
           {% if not logged_in() %}<li>
-            <a href="/oauth">
+            <a href="{{ url_for('auth') }}">
               <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
               はてなIDでログイン
             </a>
           </li>
           {% else %}<li>
-            <a href="/oauth/logout">
+            <a href="{{ url_for('auth_logout') }}">
               <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
               ログアウト
             </a>
