@@ -4,7 +4,6 @@ import logging
 from urllib.parse import quote, parse_qs, urlencode
 from xml.etree import ElementTree
 from flask import Flask, Response, abort, request, redirect, session, url_for, render_template
-import oauth
 import requests
 from requests_oauthlib import OAuth1
 import constants
