@@ -1,7 +1,7 @@
 from xml.etree import ElementTree
 from urllib.parse import parse_qs
-import constants
 import requests
+import constants
 
 def get(auth, url, *, params=None):
     if params is None:
