@@ -61,10 +61,9 @@ def get_username():
     return username
 
 
-def get_bookmarks(page=1):
+def get_bookmark_feed(page=1):
     oauth = get_authorized_info()
     params = {'tag': 'あとで読む', 'page': page}
-    data = []
     username = get_username()
     headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
@@ -74,18 +73,27 @@ def get_bookmarks(page=1):
         auth=oauth,
     )
     resp.raise_for_status()
+    return resp.text
+
+
+def get_bookmarks(page=1):
+    xml = get_bookmark_feed(page)
+
+    tree = ElementTree.fromstring(xml)
     namespace = {
         'rdf': 'http://purl.org/rss/1.0/',
         'dc': 'http://purl.org/dc/elements/1.1/',
     }
-    xml = ElementTree.fromstring(resp.text)
-    targets = xml.findall('rdf:item', namespace)
+
+    data = []
+    targets = tree.findall('rdf:item', namespace)
     for elem in targets:
         url = elem.find('rdf:link', namespace).text
         title = elem.find('rdf:title', namespace).text
         date = elem.find('dc:date', namespace).text.replace('T', ' ')
         entry = {'url': url, 'title': title, 'date': date}
         data.append(entry)
+
     return data
 
 # Controllers
@@ -174,17 +182,9 @@ def auth_logout():
 def feed():
     if not logged_in():
         return redirect(url_for('index'))
-    oauth = get_authorized_info()
-    params = {'tag': 'あとで読む'}
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = requests.get(
-        'http://b.hatena.ne.jp/atom/feed',
-        headers=headers,
-        params=params,
-        auth=oauth,
-    )
-    resp.raise_for_status()
-    return Response(resp.text, mimetype='text/xml')
+    page = int(request.args.get('page', 1))
+    xml = get_bookmark_feed(page)
+    return Response(xml, mimetype='text/xml')
 
 
 @app.route('/feed/read', methods=['POST'])
