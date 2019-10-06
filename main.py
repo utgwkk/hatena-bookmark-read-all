@@ -10,13 +10,17 @@ app.secret_key = constants.SECRET_KEY
 app.logger.setLevel(logging.DEBUG)
 
 # Helper
+
+
 def logged_in():
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
     return oauth_token != '' and oauth_token_secret != ''
 
+
 funcs = dict(logged_in=logged_in)
 app.jinja_env.globals.update(**funcs)
+
 
 def get_authorized_info():
     oauth_token = session.get('oauth_token', '')
@@ -28,12 +32,14 @@ def get_authorized_info():
         resource_owner_secret=oauth_token_secret
     )
 
+
 def is_smartphone():
     user_agent = request.headers.get('User-Agent')
     for smp_ua in constants.SMARTPHONE_USER_AGENT:
         if smp_ua in user_agent:
             return True
     return False
+
 
 def get_username():
     oauth = get_authorized_info()
@@ -43,6 +49,7 @@ def get_username():
     )
     r.raise_for_status()
     return r.json()['name']
+
 
 def get_bookmarks(page=1):
     oauth = get_authorized_info()
@@ -74,7 +81,7 @@ def get_bookmarks(page=1):
 def index():
     bookmarks = []
     if logged_in():
-        bookmarks = bookmarks=get_bookmarks()
+        bookmarks = bookmarks = get_bookmarks()
 
     return render_template('index.html', bookmarks=bookmarks)
 
