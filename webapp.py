@@ -34,9 +34,9 @@ def get_authorized_info():
 
 
 def flush_session():
-    session['oauth_token'] = ''
-    session['oauth_token_secret'] = ''
-    session['username'] = ''
+    del session['oauth_token']
+    del session['oauth_token_secret']
+    del session['username']
 
 
 def is_smartphone():
