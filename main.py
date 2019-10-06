@@ -47,8 +47,10 @@ def is_smartphone():
 
 def get_username():
     oauth = get_authorized_info()
+    headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
         'https://bookmark.hatenaapis.com/rest/1/my',
+        headers=headers,
         auth=oauth,
     )
     resp.raise_for_status()
@@ -60,8 +62,10 @@ def get_bookmarks(page=1):
     params = {'tag': 'あとで読む', 'page': page}
     data = []
     username = get_username()
+    headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
         f'https://b.hatena.ne.jp/{username}/bookmark.rss',
+        headers=headers,
         params=params,
         auth=oauth,
     )
@@ -107,7 +111,13 @@ def auth():
         'scope': constants.SCOPE,
         'oauth_callback': constants.CALLBACK_URL,
     }
-    resp = requests.post(constants.REQUEST_TOKEN_URL, auth=oauth, params=params)
+    headers = {'User-Agent': constants.USER_AGENT}
+    resp = requests.post(
+        constants.REQUEST_TOKEN_URL,
+        headers=headers,
+        auth=oauth,
+        params=params
+    )
     resp.raise_for_status()
 
     resp_json = parse_qs(resp.text)
@@ -134,7 +144,12 @@ def auth_callback():
         resource_owner_secret=oauth_token_secret,
         verifier=verifier,
     )
-    resp = requests.post(constants.GET_ACCESS_TOKEN_URL, auth=oauth)
+    headers = {'User-Agent': constants.USER_AGENT}
+    resp = requests.post(
+        constants.GET_ACCESS_TOKEN_URL,
+        headers=headers,
+        auth=oauth,
+    )
     resp_body = parse_qs(resp.text)
     oauth_token = resp_body['oauth_token'][0]
     oauth_token_secret = resp_body['oauth_token_secret'][0]
@@ -157,8 +172,10 @@ def feed():
         return redirect(url_for('index'))
     oauth = get_authorized_info()
     params = {'tag': 'あとで読む'}
+    headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
         'http://b.hatena.ne.jp/atom/feed',
+        headers=headers,
         params=params,
         auth=oauth,
     )
@@ -172,8 +189,10 @@ def mark_as_read():
     if not logged_in():
         abort(403)
     oauth = get_authorized_info()
+    headers = {'User-Agent': constants.USER_AGENT}
     resp = requests.get(
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
+        headers=headers,
         params={'url': url},
         auth=oauth,
     )
@@ -187,6 +206,7 @@ def mark_as_read():
     params = {'url': url, 'comment': comment, 'tags': tags}
     resp = requests.post(
         'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
+        headers=headers,
         params=params,
         auth=oauth,
     )

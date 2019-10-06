@@ -11,5 +11,6 @@ GET_ACCESS_TOKEN_URL = 'https://www.hatena.com/oauth/token'
 SCOPE = 'read_public,read_private,write_public,write_private'
 SMARTPHONE_USER_AGENT = ['iPhone', 'iPad',
                          'Android', 'Mobile', 'Phone', 'Nexus']
+USER_AGENT = 'hatena-bookmark-read-all (utagawakiki@gmail.com)'
 
 SECRET_KEY = environ.get('SECRET_KEY')
