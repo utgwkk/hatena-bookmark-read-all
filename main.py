@@ -1,6 +1,5 @@
 import logging
 from urllib.parse import parse_qs, urlencode
-from xml.etree import ElementTree
 from flask import Flask, Response, abort, request, redirect, session, url_for, render_template
 import requests
 from requests_oauthlib import OAuth1
@@ -52,47 +51,10 @@ def get_username():
         return session['username']
 
     oauth = get_authorized_info()
-    resp = service.get(
-        oauth,
-        'https://bookmark.hatenaapis.com/rest/1/my'
-    )
-    username = resp.json()['name']
+    username = service.get_username(oauth)
     session['username'] = username
     return username
 
-
-def get_bookmark_feed(page=1):
-    oauth = get_authorized_info()
-    params = {'tag': 'あとで読む', 'page': page}
-    username = get_username()
-    headers = {'User-Agent': constants.USER_AGENT}
-    resp = service.get(
-        oauth,
-        f'https://b.hatena.ne.jp/{username}/bookmark.rss',
-        params=params,
-    )
-    return resp.text
-
-
-def get_bookmarks(page=1):
-    xml = get_bookmark_feed(page)
-
-    tree = ElementTree.fromstring(xml)
-    namespace = {
-        'rdf': 'http://purl.org/rss/1.0/',
-        'dc': 'http://purl.org/dc/elements/1.1/',
-    }
-
-    data = []
-    targets = tree.findall('rdf:item', namespace)
-    for elem in targets:
-        url = elem.find('rdf:link', namespace).text
-        title = elem.find('rdf:title', namespace).text
-        date = elem.find('dc:date', namespace).text.replace('T', ' ')
-        entry = {'url': url, 'title': title, 'date': date}
-        data.append(entry)
-
-    return data
 
 # Controllers
 @app.route('/')
@@ -100,7 +62,9 @@ def index():
     bookmarks = []
     if logged_in():
         try:
-            bookmarks = get_bookmarks()
+            oauth = get_authorized_info()
+            username = get_username()
+            bookmarks = service.get_bookmark_feed_as_list(oauth, username)
         except requests.HTTPError:
             # ログインセッションがおかしくなるとAPIから401が返るので、
             # とりあえずログアウトする
@@ -126,7 +90,6 @@ def auth():
         constants.REQUEST_TOKEN_URL,
         params=params,
     )
-    resp.raise_for_status()
 
     resp_json = parse_qs(resp.text)
     oauth_token = resp_json['oauth_token'][0]
@@ -177,7 +140,9 @@ def feed():
     if not logged_in():
         return redirect(url_for('index'))
     page = int(request.args.get('page', 1))
-    xml = get_bookmark_feed(page)
+    oauth = get_authorized_info()
+    username = get_username()
+    xml = service.get_bookmark_feed(oauth, username, page)
     return Response(xml, mimetype='text/xml')
 
 
@@ -187,25 +152,15 @@ def mark_as_read():
     if not logged_in():
         abort(403)
     oauth = get_authorized_info()
-    resp = service.get(
-        oauth,
-        'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-        params={'url': url},
-    )
-    resp.raise_for_status()
-    resp_json = resp.json()
-    comment = resp_json['comment_raw']
-    tags = resp_json['tags']
+    bookmark = service.get_bookmark(oauth, url)
+
+    comment = bookmark['comment_raw']
+    tags = bookmark['tags']
     comment = comment.replace('[あとで読む]', '')
     if 'あとで読む' in tags:
         tags.remove('あとで読む')
-    params = {'url': url, 'comment': comment, 'tags': tags}
-    resp = service.post(
-        oauth,
-        'https://bookmark.hatenaapis.com/rest/1/my/bookmark',
-        params=params,
-    )
-    resp.raise_for_status()
+
+    service.update_bookmark(oauth, url, comment, tags)
 
     return 'ok'
 
