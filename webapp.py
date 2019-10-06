@@ -13,7 +13,10 @@ app.logger.setLevel(logging.DEBUG)
 # Helper
 
 
-def logged_in():
+def logged_in() -> bool:
+    '''
+    ログイン中であるかどうかを表す真偽値を返す
+    '''
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
     return oauth_token != '' and oauth_token_secret != ''
@@ -22,7 +25,10 @@ def logged_in():
 app.jinja_env.globals.update(logged_in=logged_in)
 
 
-def get_authorized_info():
+def get_authorized_info() -> OAuth1:
+    '''
+    認証情報を表すOAuth1オブジェクトを返す
+    '''
     oauth_token = session.get('oauth_token', '')
     oauth_token_secret = session.get('oauth_token_secret', '')
     return OAuth1(
@@ -34,12 +40,18 @@ def get_authorized_info():
 
 
 def flush_session():
+    '''
+    セッションを破棄してログアウト状態にする
+    '''
     del session['oauth_token']
     del session['oauth_token_secret']
     del session['username']
 
 
-def is_smartphone():
+def is_smartphone() -> bool:
+    '''
+    アクセス元の端末がスマートフォンであるかどうかを判定する
+    '''
     user_agent = request.headers.get('User-Agent')
     for smp_ua in constants.SMARTPHONE_USER_AGENT:
         if smp_ua in user_agent:
@@ -47,7 +59,10 @@ def is_smartphone():
     return False
 
 
-def get_username():
+def get_username() -> str:
+    '''
+    ログインしているユーザーの名前を返す
+    '''
     # sessionにキャッシュがあったら使う
     if 'username' in session:
         return session['username']
