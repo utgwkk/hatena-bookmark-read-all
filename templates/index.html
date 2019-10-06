@@ -60,7 +60,7 @@
         </p>
         {% if logged_in() %}
           <hr>
-          {% if len(bookmarks) > 0 %}
+          {% if bookmarks %}
             <div class="container">
               <button type="button" class="btn btn-lg btn-warning read-all-button">
                 <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>

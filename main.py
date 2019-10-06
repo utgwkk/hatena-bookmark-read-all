@@ -15,7 +15,7 @@ def logged_in():
     oauth_token_secret = session.get('oauth_token_secret', '')
     return oauth_token != '' and oauth_token_secret != ''
 
-funcs = dict(logged_in=logged_in, quote=quote, len=len)
+funcs = dict(logged_in=logged_in)
 app.jinja_env.globals.update(**funcs)
 
 def get_authorized_info():
