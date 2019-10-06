@@ -124,9 +124,9 @@ def auth_callback():
         verifier=verifier,
     )
     resp = requests.post(constants.GET_ACCESS_TOKEN_URL, auth=oauth)
-    resp_json = parse_qs(resp.text)
-    oauth_token = resp_json['oauth_token'][0]
-    oauth_token_secret = resp_json['oauth_token_secret'][0]
+    resp_body = parse_qs(resp.text)
+    oauth_token = resp_body['oauth_token'][0]
+    oauth_token_secret = resp_body['oauth_token_secret'][0]
     session['oauth_token'] = oauth_token
     session['oauth_token_secret'] = oauth_token_secret
     return redirect(url_for('index'))
