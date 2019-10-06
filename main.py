@@ -66,8 +66,8 @@ def get_bookmarks(page=1):
 @app.route('/')
 def index():
     bookmarks = []
-    if oauth.logged_in():
-        bookmarks = bookmarks=oauth.get_bookmarks()
+    if logged_in():
+        bookmarks = bookmarks=get_bookmarks()
 
     return render_template('index.html', bookmarks=bookmarks)
 
