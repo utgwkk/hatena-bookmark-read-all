@@ -48,11 +48,13 @@ def is_smartphone():
 
 
 def get_username():
+    # sessionにキャッシュがあったら使う
     if 'username' in session:
         return session['username']
 
     oauth = get_authorized_info()
     username = service.get_username(oauth)
+    # sessionにキャッシュする
     session['username'] = username
     return username
 
